@@ -26,7 +26,7 @@ func updateStatus(w WeatherProvider, slackApi *SlackApi) {
 	if err != nil {
 		log.Printf("failed to get 3 days forecast, use boring text")
 	} else {
-		text = ""
+		text = "|"
 		for _, wf := range weatherForecasts {
 			text = text + string(WeatherEmojiMap[wf])
 		}
