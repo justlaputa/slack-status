@@ -2,11 +2,12 @@ package main
 
 import (
 	"log"
+	"os"
 	"time"
 )
 
 const (
-	UPDATEPERIOD = time.Minute * 1
+	UPDATEPERIOD = time.Hour * 1
 )
 
 func updateStatus(w WeatherProvider, slackApi *SlackApi) {
@@ -42,8 +43,17 @@ func main() {
 	log.Printf("starting slack status...")
 	log.Printf("changeing status in %d minutes", UPDATEPERIOD/60000000000)
 
-	weatherProvider := NewWundergroundProvider("")
-	slackApi := &SlackApi{Token: ""}
+	apiKey := os.Getenv("WUNDERGROUND_API_KEY")
+	if len(apiKey) == 0 {
+		log.Fatal("did you set api key of wunderground by environment variable WUNDERGROUND_API_KEY? I can not start without it, please set it and restart")
+	}
+	slackToken := os.Getenv("SLACK_API_TOKEN")
+	if len(slackToken) == 0 {
+		log.Fatal("did you set slack api token by environment variable SLACK_API_TOKEN? I can not start without it, please set it and restart")
+	}
+
+	weatherProvider := NewWundergroundProvider(apiKey)
+	slackApi := &SlackApi{Token: slackToken}
 
 	tickerChan := time.NewTicker(UPDATEPERIOD).C
 	for {
