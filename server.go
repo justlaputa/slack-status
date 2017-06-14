@@ -55,6 +55,9 @@ func main() {
 	weatherProvider := NewWundergroundProvider(apiKey)
 	slackApi := &SlackApi{Token: slackToken}
 
+	// do it first when server starts
+	updateStatus(weatherProvider, slackApi)
+
 	tickerChan := time.NewTicker(UPDATEPERIOD).C
 	for {
 		select {
