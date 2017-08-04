@@ -10,6 +10,29 @@ const (
 	UPDATEPERIOD = time.Hour * 1
 )
 
+var (
+	previousEmoji   Emoji = EMOJI_QUESTION
+	previousWeather       = []WeatherCondition{UNKNOWN_WEATHER, UNKNOWN_WEATHER, UNKNOWN_WEATHER}
+)
+
+func updatePrevious(emoji Emoji, forecasts []WeatherCondition) (Emoji, []WeatherCondition) {
+	if emoji == EMOJI_QUESTION {
+		emoji = previousEmoji
+	} else {
+		previousEmoji = emoji
+	}
+
+	for i, w := range forecasts {
+		if w == UNKNOWN_WEATHER {
+			forecasts[i] = previousWeather[i]
+		} else {
+			previousWeather[i] = forecasts[i]
+		}
+	}
+
+	return emoji, forecasts
+}
+
 func updateStatus(w WeatherProvider, slackApi *SlackApi) {
 	log.Printf("updateing slack status...")
 
@@ -27,6 +50,8 @@ func updateStatus(w WeatherProvider, slackApi *SlackApi) {
 		log.Printf("failed to get 3 days forecast, use boring text")
 	} else {
 		text = "|"
+		currentEmoji, weatherForecasts = updatePrevious(currentEmoji, weatherForecasts)
+
 		for _, wf := range weatherForecasts {
 			text = text + string(WeatherEmojiMap[wf])
 		}
