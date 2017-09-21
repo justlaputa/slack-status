@@ -67,30 +67,30 @@ type CurrentObservationType struct {
 	DewpointF             float64       `json:"dewpoint_f"`
 	DewpointC             float64       `json:"dewpoint_c"`
 	// HeatIndexString       string        `json:"heat_index_string"`
-	HeatIndexF        float64 `json:"heat_index_f"`
-	HeatIndexC        float64 `json:"heat_index_c"`
-	WindchillString   string  `json:"windchill_string"`
-	WindchillF        string  `json:"windchill_f"`
-	WindchillC        string  `json:"windchill_c"`
-	FeelslikeString   string  `json:"feelslike_string"`
-	FeelslikeF        string  `json:"feelslike_f"`
-	FeelslikeC        string  `json:"feelslike_c"`
-	VisibilityMi      string  `json:"visibility_mi"`
-	VisibilityKm      string  `json:"visibility_km"`
-	Solarradiation    string  `json:"solarradiation"`
-	UV                string  `json:"UV"`
-	Precip1hrString   string  `json:"precip_1hr_string"`
-	Precip1hrIn       string  `json:"precip_1hr_in"`
-	Precip1hrMetric   string  `json:"precip_1hr_metric"`
-	PrecipTodayString string  `json:"precip_today_string"`
-	PrecipTodayIn     string  `json:"precip_today_in"`
-	PrecipTodayMetric string  `json:"precip_today_metric"`
-	Icon              string  `json:"icon"`
-	IconUrl           string  `json:"icon_url"`
-	ForecastUrl       string  `json:"forecast_url"`
-	HistoryUrl        string  `json:"history_url"`
-	ObUrl             string  `json:"ob_url"`
-	Nowcast           string  `json:"nowcast"`
+	HeatIndexF        string `json:"heat_index_f"`
+	HeatIndexC        string `json:"heat_index_c"`
+	WindchillString   string `json:"windchill_string"`
+	WindchillF        string `json:"windchill_f"`
+	WindchillC        string `json:"windchill_c"`
+	FeelslikeString   string `json:"feelslike_string"`
+	FeelslikeF        string `json:"feelslike_f"`
+	FeelslikeC        string `json:"feelslike_c"`
+	VisibilityMi      string `json:"visibility_mi"`
+	VisibilityKm      string `json:"visibility_km"`
+	Solarradiation    string `json:"solarradiation"`
+	UV                string `json:"UV"`
+	Precip1hrString   string `json:"precip_1hr_string"`
+	Precip1hrIn       string `json:"precip_1hr_in"`
+	Precip1hrMetric   string `json:"precip_1hr_metric"`
+	PrecipTodayString string `json:"precip_today_string"`
+	PrecipTodayIn     string `json:"precip_today_in"`
+	PrecipTodayMetric string `json:"precip_today_metric"`
+	Icon              string `json:"icon"`
+	IconUrl           string `json:"icon_url"`
+	ForecastUrl       string `json:"forecast_url"`
+	HistoryUrl        string `json:"history_url"`
+	ObUrl             string `json:"ob_url"`
+	Nowcast           string `json:"nowcast"`
 }
 
 type ImageType struct {
