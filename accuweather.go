@@ -16,6 +16,8 @@ const (
 	Forcast5DaysURL = "http://dataservice.accuweather.com/forecasts/v1/daily/5day"
 )
 
+//icon code map to weather condition
+//see: https://developer.accuweather.com/weather-icons
 var accuIconMap = map[int]WeatherCondition{
 	1:  CLEAR,         //Sunny
 	2:  PARTLY_CLOUDY, //Mostly Sunny
@@ -71,7 +73,7 @@ type CurrentConditionResponse struct {
 	}
 }
 
-//TemperatureType temperature struct, only include C
+//TemperatureValueType temperature struct, only include C
 type TemperatureValueType struct {
 	Value    float64
 	Unit     string
