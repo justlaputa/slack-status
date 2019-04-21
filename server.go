@@ -1,13 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
-	"time"
-)
-
-const (
-	UPDATEPERIOD = time.Hour * 1
 )
 
 var (
@@ -33,13 +30,13 @@ func updatePrevious(emoji Emoji, forecasts []WeatherCondition) (Emoji, []Weather
 	return emoji, forecasts
 }
 
-func updateStatus(w WeatherProvider, slackApi *SlackApi) {
+func updateStatus(w WeatherProvider, slackAPI *SlackApi) error {
 	log.Printf("updateing slack status...")
 
 	weather, err := w.getWeather("Tokyo", "JP")
 	if err != nil {
 		log.Printf("failed to get weather, skip")
-		return
+		return err
 	}
 
 	currentEmoji := WeatherEmojiMap[weather]
@@ -57,39 +54,45 @@ func updateStatus(w WeatherProvider, slackApi *SlackApi) {
 		}
 	}
 
-	result := slackApi.setStatus(text, currentEmoji)
+	result := slackAPI.setStatus(text, currentEmoji)
 	if !result {
 		log.Printf("failed to set slack status, skip")
-		return
+		return err
 	}
+
+	return nil
 }
 
 func main() {
-	log.Printf("starting slack status...")
-	log.Printf("changeing status in %d minutes", UPDATEPERIOD/60000000000)
-
-	apiKey := os.Getenv("WUNDERGROUND_API_KEY")
+	apiKey := os.Getenv("ACCUWEATHER_API_KEY")
 	if len(apiKey) == 0 {
-		log.Fatal("did you set api key of wunderground by environment variable WUNDERGROUND_API_KEY? I can not start without it, please set it and restart")
+		log.Fatal("did you set api key of accuweather by environment variable ACCUWEATHER_API_KEY? I can not start without it, please set it and restart")
 	}
 	slackToken := os.Getenv("SLACK_API_TOKEN")
 	if len(slackToken) == 0 {
 		log.Fatal("did you set slack api token by environment variable SLACK_API_TOKEN? I can not start without it, please set it and restart")
 	}
 
-	weatherProvider := NewWundergroundProvider(apiKey)
-	slackApi := &SlackApi{Token: slackToken}
+	weatherProvider := NewAccuWeatherProvider(apiKey)
+	slackAPI := &SlackApi{Token: slackToken}
 
-	// do it first when server starts
-	updateStatus(weatherProvider, slackApi)
-
-	tickerChan := time.NewTicker(UPDATEPERIOD).C
-	for {
-		select {
-		case <-tickerChan:
-			go updateStatus(weatherProvider, slackApi)
-		default:
-			time.Sleep(time.Second)
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		err := updateStatus(weatherProvider, slackAPI)
+		if err != nil {
+			fmt.Fprintf(w, "error: %v", err)
+			w.WriteHeader(http.StatusInternalServerError)
+		} else {
+			w.WriteHeader(http.StatusOK)
+			fmt.Fprintln(w, "success")
 		}
+	})
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
 	}
+
+	log.Printf("starting slack status on: %s", port)
+
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }

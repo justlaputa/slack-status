@@ -1,28 +1,29 @@
 BINARY = slack-status
-IMAGENAME = laputa/slack-status
+IMAGENAME = gcr.io/laputa/slack-status
 SRC = $(shell find . -type f -name '*.go' -not -path "./vendor/*")
 
-include secrets
+include .env
+export $(shell sed 's/=.*//' .env)
 
-.PHONY: clean docker-image build deploy
+.PHONY: test clean gcloud-build build deploy
+
+test: $(SRC)
+	go test
 
 $(BINARY): $(SRC)
-	GOOS=linux GOARCH=amd64 go build -o $(BINARY)
+	go build -o $(BINARY)
 
 clean:
 	$(RM) $(BINARY)
 
-docker-image: $(BINARY)
-	docker build -t $(IMAGENAME) .
+gcloud-build: $(SRC)
+	gcloud builds submit --tag $(IMAGENAME)
 
-build: docker-image
+build: test $(BINARY)
 
-deploy: build
-	docker push $(IMAGENAME)
-	-ssh vultr docker stop $(BINARY)
-	-ssh vultr docker rm $(BINARY)
-	ssh vultr docker pull $(IMAGENAME)
-	ssh vultr docker run -d --restart=always --name $(BINARY) \
-		-e WUNDERGROUND_API_KEY="$(WUNDERGROUND_API_KEY)" \
-		-e SLACK_API_TOKEN="$(SLACK_API_TOKEN)" \
-		$(IMAGENAME)
+deploy: gcloud-build
+	gcloud beta run \
+		deploy slack-status \
+		--region us-central1 \
+		--set-env-vars SLACK_API_TOKEN="${SLACK_API_TOKEN}",ACCUWEATHER_API_KEY="${ACCUWEATHER_API_KEY}" \
+		--image $(IMAGENAME)

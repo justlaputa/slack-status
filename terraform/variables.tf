@@ -16,3 +16,8 @@ variable "region" {
     default = "asia-northeast1"  
 }
 
+variable "http_trigger_url" {
+  type = "string"
+  description = "gcp cloud run deploy url"
+  default = "https://slack-status-evaw76nphq-uc.a.run.app"  
+}

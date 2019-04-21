@@ -1,6 +1,16 @@
-FROM octoblu/alpine-ca-certificates
-MAINTAINER laputa <justlaputa@gmail.com>
+FROM golang:1.12-alpine as build
+WORKDIR /go/src/app
+COPY . .
+RUN go build -v -o slack-status .
+RUN ls -lt
 
-COPY slack-status /slack-status
+FROM alpine
+LABEL Author="laputa"
+LABEL Email="<justlaputa@gmail.com>"
 
-ENTRYPOINT ["/slack-status"]
+RUN apk update && apk add ca-certificates && rm -rf /var/cache/apk/*
+
+WORKDIR /root
+COPY --from=build /go/src/app/slack-status /root/slack-status
+
+ENTRYPOINT ["/root/slack-status"]

@@ -1,8 +1,3 @@
-variable "topic_name" {
-  type        = "string"
-  description = "cloud pub/sub topic name to publish to, when shedule comes"
-}
-
 variable "region" {
   type        = "string"
   description = "crontab schedule region"
@@ -28,8 +23,9 @@ variable "scheduler_name" {
   description = "scheduler job name"
 }
 
-resource "google_pubsub_topic" "topic" {
-  name = "${var.topic_name}"
+variable "http_trigger_url" {
+  type = "string"
+  description = "gcp cloud run deploy url"
 }
 
 resource "google_cloud_scheduler_job" "job" {
@@ -40,8 +36,8 @@ resource "google_cloud_scheduler_job" "job" {
   schedule    = "${var.schedule}"
   time_zone   = "${var.timezone}"
 
-  pubsub_target {
-    topic_name = "${google_pubsub_topic.topic.id}"
-    data       = "${base64encode("status")}"
+  http_target {
+    http_method = "GET"
+    uri = "${var.http_trigger_url}"
   }
 }
